@@ -3,7 +3,6 @@ from flask import (
 )
 from flask import Flask, request
 import os
-
 import telebot
 from telebot.types import ForceReply, ReplyKeyboardMarkup
 
@@ -81,6 +80,9 @@ if __name__ == "__main__":
     bot.infinity_polling()
 bp = Blueprint('main', __name__)
 
+TOKEN = '<api_token>'
+bot = telebot.TeleBot(TOKEN)
+server = Flask(__name__)
 @bp.route('/', methods=['GET', 'POST'])
 def index():
     """
@@ -90,24 +92,7 @@ def index():
 
     return render_template('main/index.html')
 
-
-
-TOKEN = '<api_token>'
-bot = telebot.TeleBot(TOKEN)
-server = Flask(__name__)
-
-
-@bot.message_handler(commands=['start'])
-def start(message):
-    bot.reply_to(message, 'Hello, ' + message.from_user.first_name)
-
-
-@bot.message_handler(func=lambda message: True, content_types=['text'])
-def echo_message(message):
-    bot.reply_to(message, message.text)
-
-
-@server.route('/' + TOKEN, methods=['POST'])
+@bp.route('/ms' + TOKEN, methods=['POST'])
 def getMessage():
     json_string = request.get_data().decode('utf-8')
     update = telebot.types.Update.de_json(json_string)
@@ -115,10 +100,10 @@ def getMessage():
     return "!", 200
 
 
-@server.route("/")
+@bp.route("/wb")
 def webhook():
     bot.remove_webhook()
-    bot.set_webhook(url='https://your_heroku_project.com/' + TOKEN)
+    bot.set_webhook(url='https://telebotpds.herokuapp.com/' + TOKEN)
     return "!", 200
 
 
